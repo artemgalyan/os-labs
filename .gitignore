@@ -393,3 +393,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# CLion
+.idea/
+cmake-build-debug/
