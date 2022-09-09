@@ -1,6 +1,6 @@
 #include <iostream>
-#include <Number.h>
-#include <Vector.h>
+#include <number.h>
+#include <vector.h>
 
 std::ostream& operator<<(std::ostream& out, const Vector& vector) {
 	return out << '(' << vector.GetX() << ", " << vector.GetY() << ')';

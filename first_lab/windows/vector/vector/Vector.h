@@ -6,8 +6,7 @@
 #define DllExport __declspec(dllimport)
 #endif
 
-#include <Number.h>
-#include <iostream>
+#include <number.h>
 
 class DllExport Vector
 {
