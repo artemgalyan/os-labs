@@ -8,20 +8,19 @@
 
 #include <number.h>
 
-class DllExport Vector
-{
-public:
-	const static Vector ZERO_ZERO;
-	const static Vector ONE_ONE;
-	Vector(Number x, Number y);
-	Vector(const Vector&) = default;
-	Vector& operator=(const Vector&) = default;
-	double GetAngle() const;
-	double GetRadius() const;
-	Number GetX() const;
-	Number GetY() const;
-private:
-	Number x_;
-	Number y_;
+class DllExport Vector {
+ public:
+  const static Vector ZERO_ZERO;
+  const static Vector ONE_ONE;
+  Vector(Number x, Number y);
+  Vector(const Vector&) = default;
+  Vector& operator=(const Vector&) = default;
+  double GetAngle() const;
+  double GetRadius() const;
+  Number GetX() const;
+  Number GetY() const;
+ private:
+  Number x_;
+  Number y_;
 };
 

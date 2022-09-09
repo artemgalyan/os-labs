@@ -8,9 +8,8 @@ const Vector Vector::ONE_ONE = Vector(Number::ONE, Number::ONE);
 
 Vector::Vector(Number x, Number y) : x_(x), y_(y) {}
 
-double Vector::GetAngle() const
-{
-  double angle = atan((double)y_ / x_);
+double Vector::GetAngle() const {
+  double angle = atan((double) y_ / x_);
   if (x_ >= Number::ZERO) {
     return angle;
   }
@@ -20,17 +19,14 @@ double Vector::GetAngle() const
   return std::numbers::pi + angle;
 }
 
-double Vector::GetRadius() const
-{
-  return sqrt((int)x_ * x_ + y_ * y_);
+double Vector::GetRadius() const {
+  return sqrt((int) x_ * x_ + y_ * y_);
 }
 
-Number Vector::GetX() const
-{
+Number Vector::GetX() const {
   return x_;
 }
 
-Number Vector::GetY() const
-{
+Number Vector::GetY() const {
   return y_;
 }
