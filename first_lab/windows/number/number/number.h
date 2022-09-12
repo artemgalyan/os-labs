@@ -2,6 +2,7 @@
 
 #include <compare>
 
+namespace number {
 class Number {
  public:
   const static Number ONE;
@@ -18,4 +19,6 @@ class Number {
  private:
   int value_;
 };
-
+Number CreateNumber(int value);
+Number CreateNumber(Number from);
+}

@@ -7,15 +7,16 @@ std::ostream& operator<<(std::ostream& out, const Vector& vector) {
 }
 
 int main() {
+  using number::Number;
   auto one = Number::ONE;
-  auto zero = Number::ZERO;
-  auto ten = Number(10);
-  Number result = 5 * one + 19 * zero + ten + 1;
-  int intValue = result;
-  std::cout << result << " " << intValue << std::endl;
-  Vector v = Vector::ZERO_ZERO;
-  std::cout << v << std::endl;
-  v = Vector(result, 10);
-  std::cout << v << std::endl;
+  auto two = number::CreateNumber(2);
+  auto three = number::CreateNumber(two + one);
+  Number sum = one + two + three;
+  int sum_as_int = sum;
+  std::cout << one << " " << two << " " << sum << " " << sum_as_int << std::endl;
+
+  Vector v1(one, two);
+  Vector v2 = Vector::ONE_ONE;
+  std::cout << v1 + v2 << ", " << -(v1 + v2);
   return 0;
 }

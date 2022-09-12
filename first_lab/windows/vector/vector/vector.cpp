@@ -24,10 +24,18 @@ double Vector::GetRadius() const {
   return sqrt((int) x_ * x_ + y_ * y_);
 }
 
-Number Vector::GetX() const {
+number::Number Vector::GetX() const {
   return x_;
 }
 
-Number Vector::GetY() const {
+number::Number Vector::GetY() const {
   return y_;
+}
+
+Vector Vector::operator+(const Vector& v) const {
+  return Vector(x_ + v.x_, y_ + v.y_);
+}
+
+Vector Vector::operator-() const {
+  return Vector(-x_, -y_);
 }

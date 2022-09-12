@@ -10,6 +10,7 @@
 
 class DllExport Vector {
  public:
+  typedef number::Number Number;
   const static Vector ZERO_ZERO;
   const static Vector ONE_ONE;
   Vector(Number x, Number y);
@@ -19,6 +20,8 @@ class DllExport Vector {
   double GetRadius() const;
   Number GetX() const;
   Number GetY() const;
+  Vector operator+(const Vector& v) const;
+  Vector operator-() const;
  private:
   Number x_;
   Number y_;
