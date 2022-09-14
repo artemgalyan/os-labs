@@ -17,6 +17,6 @@ int main() {
 
   Vector v1(one, two);
   Vector v2 = vector::ONE_ONE;
-  std::cout << v1 + v2 << ", " << -(v1 + v2);
+  std::cout << v1 + v2 << ", " << -(v1 + v2) << " " << v1.GetAngle() << " " << v1.GetRadius();
   return 0;
 }
