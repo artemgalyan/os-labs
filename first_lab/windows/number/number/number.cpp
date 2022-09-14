@@ -2,8 +2,8 @@
 #include "number.h"
 
 namespace number {
-const Number Number::ZERO = Number(0);
-const Number Number::ONE = Number(1);
+const Number ZERO = Number(0);
+const Number ONE = Number(1);
 
 Number::Number(int value) : value_(value) {}
 

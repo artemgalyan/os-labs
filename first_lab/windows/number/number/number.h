@@ -5,8 +5,6 @@
 namespace number {
 class Number {
  public:
-  const static Number ONE;
-  const static Number ZERO;
   Number(int value);
   Number(const Number&) = default;
   Number& operator=(const Number&) = default;
@@ -19,6 +17,9 @@ class Number {
  private:
   int value_;
 };
+
+extern const Number ONE;
+extern const Number ZERO;
 Number CreateNumber(int value);
 Number CreateNumber(Number from);
 }

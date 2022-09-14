@@ -4,17 +4,17 @@
 #include <cmath>
 #include <numbers>
 
-const Vector Vector::ZERO_ZERO = Vector(Number::ZERO, Number::ZERO);
-const Vector Vector::ONE_ONE = Vector(Number::ONE, Number::ONE);
+const Vector Vector::ZERO_ZERO = Vector(number::ZERO, number::ZERO);
+const Vector Vector::ONE_ONE = Vector(number::ONE, number::ONE);
 
 Vector::Vector(Number x, Number y) : x_(x), y_(y) {}
 
 double Vector::GetAngle() const {
   double angle = atan((double) y_ / x_);
-  if (x_ >= Number::ZERO) {
+  if (x_ >= number::ZERO) {
     return angle;
   }
-  if (y_ >= Number::ZERO) {
+  if (y_ >= number::ZERO) {
     return std::numbers::pi - angle;
   }
   return std::numbers::pi + angle;

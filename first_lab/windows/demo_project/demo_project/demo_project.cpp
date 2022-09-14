@@ -8,12 +8,11 @@ std::ostream& operator<<(std::ostream& out, const Vector& vector) {
 
 int main() {
   using number::Number;
-  auto one = Number::ONE;
-  auto two = number::CreateNumber(2);
-  auto three = number::CreateNumber(two + one);
-  Number sum = one + two + three;
-  int sum_as_int = sum;
-  std::cout << one << " " << two << " " << sum << " " << sum_as_int << std::endl;
+  Number one = number::CreateNumber(1);
+  Number two = number::CreateNumber(2);
+  Number three = number::CreateNumber(two + one);
+  auto value = one + two / three + two * two - one;
+  std::cout << one << " " << two << " " << value << " " << typeid(value).name() << std::endl;
 
   Vector v1(one, two);
   Vector v2 = Vector::ONE_ONE;
