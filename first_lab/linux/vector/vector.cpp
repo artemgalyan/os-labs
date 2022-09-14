@@ -1,5 +1,4 @@
-#include "pch.h"
-#include "Vector.h"
+#include "vector.h"
 
 #include <cmath>
 #include <numbers>
@@ -12,7 +11,9 @@ const Vector ONE_ONE = Vector(number::ONE, number::ONE);
 Vector::Vector(Number x, Number y) : x_(x), y_(y) {}
 
 double Vector::GetAngle() const {
-  double angle = atan((double) y_ / x_);
+  int y = static_cast<int>(y_);
+  int x = static_cast<int>(x_);
+  double angle = atan((double) y / x);
   if (x_ >= number::ZERO) {
     return angle;
   }

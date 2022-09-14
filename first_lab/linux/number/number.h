@@ -9,7 +9,8 @@ class Number {
   Number(int value);
   Number(const Number&) = default;
   Number& operator=(const Number&) = default;
-  explicit operator int() const;
+  operator int() const;
+  Number operator-() const;
   Number operator+(const Number&) const;
   Number operator-(const Number&) const;
   Number operator/(const Number&) const;

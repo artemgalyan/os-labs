@@ -33,4 +33,7 @@ Number NumberFrom(int value) {
 Number NumberFrom(Number number) {
   return {number};
 }
+Number Number::operator-() const {
+  return {-value_};
+}
 }

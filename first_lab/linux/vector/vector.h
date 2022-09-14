@@ -3,11 +3,11 @@
 
 #include <number.h>
 
+namespace vector {
+
 class Vector {
  public:
   typedef number::Number Number;
-  const static Vector ZERO_ZERO;
-  const static Vector ONE_ONE;
   Vector(Number x, Number y);
   Vector(const Vector&) = default;
   Vector& operator=(const Vector&) = default;
@@ -15,9 +15,16 @@ class Vector {
   [[nodiscard]] double GetRadius() const;
   [[nodiscard]] Number GetX() const;
   [[nodiscard]] Number GetY() const;
+  Vector operator-() const;
+  Vector operator+(const Vector& v) const;
  private:
   Number x_;
   Number y_;
 };
+
+extern const Vector ONE_ONE;
+extern const Vector ZERO_ZERO;
+
+}
 
 #endif //VECTOR__VECTOR_H_
