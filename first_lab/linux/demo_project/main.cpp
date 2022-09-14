@@ -3,16 +3,17 @@
 #include <vector.h>
 
 std::ostream& operator<<(std::ostream& out, const Vector& vector) {
-  return out << '(' << vector.GetX() << ", " << vector.GetY() << ')';
+  return out << '(' << static_cast<int>(vector.GetX()) << ", " << static_cast<int>(vector.GetY()) << ')';
 }
 
 int main() {
-  auto one = Number::ONE;
-  auto zero = Number::ZERO;
+  using number::Number;
+  auto one = number::ONE;
+  auto zero = number::ZERO;
   auto ten = Number(10);
-  Number result = 5 * one + 19 * zero + ten + 1;
-  int intValue = result;
-  std::cout << result << " " << intValue << std::endl;
+  Number result = one * 5 + zero * 19+ ten + 1;
+  int intValue = static_cast<int>(result);
+  std::cout << static_cast<int>(result) << " " << intValue << std::endl;
   Vector v = Vector::ZERO_ZERO;
   std::cout << v << std::endl;
   v = Vector(result, 10);

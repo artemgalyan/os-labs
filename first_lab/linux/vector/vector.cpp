@@ -3,24 +3,28 @@
 #include <cmath>
 #include <numbers>
 
-const Vector Vector::ZERO_ZERO = Vector(Number::ZERO, Number::ZERO);
-const Vector Vector::ONE_ONE = Vector(Number::ONE, Number::ONE);
+using number::Number;
+
+const Vector Vector::ZERO_ZERO = Vector(number::ZERO, number::ZERO);
+const Vector Vector::ONE_ONE = Vector(number::ONE, number::ONE);
 
 Vector::Vector(Number x, Number y) : x_(x), y_(y) {}
 
 double Vector::GetAngle() const {
-  double angle = atan((double) y_ / x_);
-  if (x_ >= Number::ZERO) {
+  int y = static_cast<int>(y_);
+  int x = static_cast<int>(x_);
+  double angle = atan((double) y / x);
+  if (x_ >= 0) {
     return angle;
   }
-  if (y_ >= Number::ZERO) {
+  if (y_ >= 0) {
     return std::numbers::pi - angle;
   }
   return std::numbers::pi + angle;
 }
 
 double Vector::GetRadius() const {
-  return sqrt((int) x_ * x_ + y_ * y_);
+  return sqrt(static_cast<int>(x_ * x_ + y_ * y_));
 }
 
 Number Vector::GetX() const {

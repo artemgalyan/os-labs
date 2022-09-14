@@ -5,15 +5,16 @@
 
 class Vector {
  public:
+  typedef number::Number Number;
   const static Vector ZERO_ZERO;
   const static Vector ONE_ONE;
   Vector(Number x, Number y);
   Vector(const Vector&) = default;
   Vector& operator=(const Vector&) = default;
-  double GetAngle() const;
-  double GetRadius() const;
-  Number GetX() const;
-  Number GetY() const;
+  [[nodiscard]] double GetAngle() const;
+  [[nodiscard]] double GetRadius() const;
+  [[nodiscard]] Number GetX() const;
+  [[nodiscard]] Number GetY() const;
  private:
   Number x_;
   Number y_;

@@ -2,14 +2,14 @@
 
 #include <compare>
 
+namespace number {
+
 class Number {
  public:
-  const static Number ONE;
-  const static Number ZERO;
   Number(int value);
   Number(const Number&) = default;
   Number& operator=(const Number&) = default;
-  operator int() const;
+  explicit operator int() const;
   Number operator+(const Number&) const;
   Number operator-(const Number&) const;
   Number operator/(const Number&) const;
@@ -19,3 +19,8 @@ class Number {
   int value_;
 };
 
+extern const Number ZERO;
+extern const Number ONE;
+Number NumberFrom(int value);
+Number NumberFrom(Number number);
+}
