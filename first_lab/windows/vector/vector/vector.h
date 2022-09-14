@@ -8,11 +8,11 @@
 
 #include <number.h>
 
+namespace vector {
+
 class DllExport Vector {
- public:
+public:
   typedef number::Number Number;
-  const static Vector ZERO_ZERO;
-  const static Vector ONE_ONE;
   Vector(Number x, Number y);
   Vector(const Vector&) = default;
   Vector& operator=(const Vector&) = default;
@@ -22,8 +22,12 @@ class DllExport Vector {
   Number GetY() const;
   Vector operator+(const Vector& v) const;
   Vector operator-() const;
- private:
+private:
   Number x_;
   Number y_;
 };
 
+extern DllExport const Vector ONE_ONE;
+extern DllExport const Vector ZERO_ZERO;
+
+}
