@@ -5,8 +5,19 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_library(vector SHARED vector.cpp)
 
-add_library(numlib STATIC IMPORTED)
-set_target_properties(numlib PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libnum.a)
-set_target_properties(numlib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/../number)
+set(BUILD_DIR "cmake-build-debug")
+set(NUMLIB_PROJECT_DIR ${CMAKE_SOURCE_DIR}/../number)
+set(NUMLIB_BUILD_DIR ${NUMLIB_PROJECT_DIR}/${BUILD_DIR})
 
-target_link_libraries(vector numlib)
+function(import_library LIBRARY_NAME LIBRARY_HEADER_PATH LIBRARY_BUILD_PATH)
+    include_directories(${LIBRARY_HEADER_PATH})
+    find_library(${LIBRARY_NAME}_LIBRARY ${LIBRARY_NAME} ${LIBRARY_BUILD_PATH})
+    if(${LIBRARY_NAME}_LIBRARY)
+        message("OK: ${${LIBRARY_NAME}_LIBRARY} found")
+        target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${${LIBRARY_NAME}_LIBRARY})
+    else()
+        message(">>>> ${LIBRARY_NAME} not found!")
+    endif()
+endfunction()
+
+import_library("num" ${NUMLIB_PROJECT_DIR} ${NUMLIB_BUILD_DIR})
