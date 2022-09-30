@@ -8,7 +8,16 @@
 
 namespace matrix {
 
-template<class T>
+template<typename T>
+concept MatrixType = requires (T a, T b) {
+  {a + b} -> std::same_as<T>;
+  {a * b} -> std::same_as<T>;
+  std::copy_constructible<T>;
+  std::assignable_from<T, T>;
+  a += b;
+};
+
+template<MatrixType T>
 class Matrix {
  public:
   explicit Matrix(const std::vector<std::vector<T>>& vector) {
@@ -64,7 +73,7 @@ class Matrix {
   }
   Matrix& operator+=(const Matrix<T>& other) {
     if (other.n_ != n_ || other.m_ != m_)
-      throw std::logic_error("Matrixes have different sizes!");
+      throw std::logic_error("Matrices have different sizes!");
     int m = m_;
     int n = n_;
     for (int i = 0; i < m; ++i) {
@@ -74,7 +83,28 @@ class Matrix {
     }
     return *this;
   }
+  Matrix<T> operator*(const Matrix<T>& other) const {
+    if (!AreMatched(*this, other)) {
+      throw std::logic_error("Matrix do not match");
+    }
+    size_t m = this->GetM();
+    size_t n = other.GetN();
+    Matrix<T> result(m, n);
+    for (size_t i = 0; i < m; ++i) {
+      for (size_t j = 0; j < n; ++j) {
+        result.Set(i, j, Multiply(Matrix<T>::GetRow(i), other.GetColumn(j)));
+      }
+    }
+    return result;
+  }
  private:
+  static T Multiply(VectorWrapper<T> a, VectorWrapper<T> b) {
+    T result = a.At(0) * b.At(0);
+    for (int i = 1; i < a.Size(); ++i) {
+      result = result + a.At(i) * b.At(i);
+    }
+    return result;
+  }
   int m_{};
   int n_{};
   VectorWrapper<VectorWrapper<T>> data_;

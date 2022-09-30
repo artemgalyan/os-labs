@@ -2,16 +2,15 @@
 #define THREAD__MATRIX_UTILS_H_
 
 #include "matrix.h"
-#include "number_matrix.h"
 
 #include <iostream>
 #include <random>
 
 namespace matrix {
 
-template<class T>
-NumberMatrix<T> SubmatrixOf(const Matrix<T>& matrix, int start_pos_i, int start_pos_j, int m, int n) {
-  NumberMatrix<T> result(m, n);
+template<MatrixType T>
+Matrix<T> SubmatrixOf(const Matrix<T>& matrix, int start_pos_i, int start_pos_j, int m, int n) {
+  Matrix<T> result(m, n);
   for (int i = 0; i < m; ++i) {
     for (int j = 0; j < n; ++j) {
       result.Set(i, j, matrix.Get(i + start_pos_i, j + start_pos_j));
@@ -20,7 +19,7 @@ NumberMatrix<T> SubmatrixOf(const Matrix<T>& matrix, int start_pos_i, int start_
   return result;
 }
 
-template<class T>
+template<MatrixType T>
 void InsertSubmatrix(Matrix<T>& matrix, const Matrix<T>& to_insert, int start_i, int start_j) {
   int m = to_insert.GetM();
   int n = to_insert.GetN();
@@ -32,11 +31,11 @@ void InsertSubmatrix(Matrix<T>& matrix, const Matrix<T>& to_insert, int start_i,
   }
 }
 
-template<class T>
-Matrix<NumberMatrix<T>> SplitIntoBlocks(const Matrix<T>& matrix, int block_size) {
+template<MatrixType T>
+Matrix<Matrix<T>> SplitIntoBlocks(const Matrix<T>& matrix, int block_size) {
   int m = ceil((double) matrix.GetM() / block_size);
   int n = ceil((double) matrix.GetN() / block_size);
-  Matrix<NumberMatrix<T>> result(m, n);
+  Matrix<Matrix<T>> result(m, n);
   for (int i = 0; i < m; ++i) {
     int block_height = std::min(matrix.GetM() - block_size * i, block_size);
     for (int j = 0; j < n; ++j) {
@@ -48,8 +47,8 @@ Matrix<NumberMatrix<T>> SplitIntoBlocks(const Matrix<T>& matrix, int block_size)
   return result;
 }
 
-template<typename T>
-Matrix<T> JoinIntoMatrix(const Matrix<NumberMatrix<T>>& matrix, int m, int n) {
+template<MatrixType T>
+Matrix<T> JoinIntoMatrix(const Matrix<Matrix<T>>& matrix, int m, int n) {
   Matrix<T> result(m, n);
   int offset_i = 0;
   int to_m = matrix.GetM(), to_n = matrix.GetN();
@@ -64,14 +63,15 @@ Matrix<T> JoinIntoMatrix(const Matrix<NumberMatrix<T>>& matrix, int m, int n) {
   return result;
 }
 
-template<typename T>
+template<MatrixType T>
 Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size) {
   if (!Matrix<T>::AreMatched(a, b)) {
     throw std::invalid_argument("Matrices are not matched");
   }
-  Matrix<NumberMatrix<T>> a_split = SplitIntoBlocks(a, block_size);
-  Matrix<NumberMatrix<T>> b_split = SplitIntoBlocks(b, block_size);
-  Matrix<NumberMatrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
+
+  Matrix<Matrix<T>> a_split = SplitIntoBlocks(a, block_size);
+  Matrix<Matrix<T>> b_split = SplitIntoBlocks(b, block_size);
+  Matrix<Matrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
   std::vector<std::thread> threads;
   for (int i = 0; i < result_blocks.GetM(); ++i) {
     for (int j = 0; j < result_blocks.GetN(); ++j) {
@@ -80,7 +80,7 @@ Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int bloc
             int m = a_split.Get(i, 0).GetM();
             int n = b_split.Get(0, j).GetN();
 
-            NumberMatrix<T> matrix(m, n);
+            Matrix<T> matrix(m, n);
             auto row = a_split.GetRow(i);
             auto col = b_split.GetColumn(j);
             for (int l = 0; l < row.Size(); ++l) {
@@ -109,7 +109,7 @@ void Print(const matrix::Matrix<T>& matrix) {
   }
 }
 
-NumberMatrix<int> GenerateMatrix(int m,
+Matrix<int> GenerateMatrix(int m,
                                  int n,
                                  int min_value = std::numeric_limits<int>::min(),
                                  int max_value = std::numeric_limits<int>::max());

@@ -2,7 +2,6 @@
 #define THREAD_TESTING_MATRIXTESTER_H_
 
 #include "../matrix.h"
-#include "../number_matrix.h"
 
 class MatrixTester {
   const int MIN_MATRIX_VALUE = -1000;
@@ -14,10 +13,10 @@ class MatrixTester {
   };
  public:
   explicit MatrixTester(int m, int n, int l);
-  typedef matrix::NumberMatrix<int> def_matrix;
+  typedef matrix::Matrix<int> def_matrix;
   void RunTests() const;
  private:
-  void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) const;
+  static void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) ;
   def_matrix a_, b_;
   int max_block_size_;
 };

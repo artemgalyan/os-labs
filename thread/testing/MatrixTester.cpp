@@ -1,4 +1,3 @@
-
 #include "MatrixTester.h"
 #include "../matrix_utils.h"
 #include "Timer.h"
@@ -15,6 +14,7 @@ void MatrixTester::RunTests() const {
   std::vector<TestResult> results;
   Timer timer;
   for (int block_size = 1; block_size < max_block_size_; ++block_size) {
+    std::cout << "Running test for block size " << block_size << std::endl;
     TestResult tr;
     tr.block_size = block_size;
     timer.Reset();
@@ -22,13 +22,21 @@ void MatrixTester::RunTests() const {
     tr.duration = timer.MeasureTime();
     results.push_back(tr);
   }
+  std::cout << "Running test for 1 thread" << std::endl;
   timer.Reset();
   auto res = a_ * b_;
   auto duration = timer.MeasureTime();
   PrintResults(results, {duration, -1});
 }
 
-void MatrixTester::PrintResults(const std::vector<TestResult>& res, TestResult one_threaded) const {
+struct separate_thousands : std::numpunct<char> {
+  char_type do_thousands_sep() const override { return ','; }
+  string_type do_grouping() const override { return "\3"; }
+};
+
+void MatrixTester::PrintResults(const std::vector<TestResult>& res, TestResult one_threaded) {
+  auto thousands = std::make_unique<separate_thousands>();
+  std::cout.imbue(std::locale(std::cout.getloc(), thousands.release()));
   std::cout << std::setw(15) << "description" << " | " << std::setw(15) << "time (microseconds)" << " | "
             << "% to 1 threaded"
             << std::endl;
