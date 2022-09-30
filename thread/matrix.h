@@ -11,6 +11,13 @@ namespace matrix {
 template<class T>
 class Matrix {
  public:
+  explicit Matrix(const std::vector<std::vector<T>>& vector) {
+	for (const auto& line: vector) {
+	  data_.PushBack(VectorWrapper<T>(line));
+	}
+	m_ = data_.Size();
+	n_ = data_.AtRef(0).Size();	
+  }	 
   Matrix(int m, int n) : m_(m), n_(n) {
     data_ = VectorWrapper<VectorWrapper<T>>(m, VectorWrapper<T>(n));
   }
