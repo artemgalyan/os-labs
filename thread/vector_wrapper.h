@@ -6,13 +6,12 @@
 
 template<class T>
 class VectorWrapper {
-  typedef unsigned long long size_type;
  public:
   VectorWrapper() = default;
-  explicit VectorWrapper(size_type size) {
+  explicit VectorWrapper(size_t size) {
     data_ = std::vector<T>(size);
   }
-  explicit VectorWrapper(size_type size, T element) {
+  explicit VectorWrapper(size_t size, T element) {
     data_ = std::vector<T>(size, element);
   }
   explicit VectorWrapper(std::vector<T>&& v) : data_(std::move(v)) {}
@@ -20,55 +19,51 @@ class VectorWrapper {
   VectorWrapper<T>& operator=(const VectorWrapper<T>& a) {
     if (this == &a)
       return *this;
-    lock_.lock();
+    lock_guard lock(lock_);
     data_.clear();
     for (auto i = 0; i < a.Size(); ++i) {
       data_.push_back(a.At(i));
     }
-    lock_.unlock();
     return *this;
   };
   VectorWrapper(const VectorWrapper& a) {
-    lock_.lock();
-    data_.clear();
+    lock_guard lock(lock_);
+	data_.clear();
     for (auto i = 0; i < a.Size(); ++i) {
       data_.push_back(a.At(i));
     }
-    lock_.unlock();
   };
   void PushBack(T value) {
-    lock_.lock();
+    lock_guard lock(lock_);
     data_.push_back(value);
-    lock_.unlock();
   }
 
-  T At(size_type index) const {
+  T At(size_t index) const {
+	lock_guard lock(lock_);
     return data_.at(index);
   }
 
-  T& AtRef(size_type index) {
-    lock_.lock();
-    T& value = data_[index];
-    lock_.unlock();
-    return value;
+  T& AtRef(size_t index) {
+    lock_guard lock(lock_);
+    return data_[index];
   }
 
-  void Set(size_type index, T value) {
-    lock_.lock();
+  void Set(size_t index, T value) {
+    lock_guard lock(lock_);
     data_[index] = value;
-    lock_.unlock();
   }
 
   [[nodiscard]] bool IsEmpty() const {
     return data_.empty();
   }
 
-  [[nodiscard]] size_type Size() const {
+  [[nodiscard]] size_t Size() const {
     return data_.size();
   }
  private:
-  std::mutex lock_;
+  mutable std::mutex lock_;
   std::vector<T> data_;
+  typedef std::lock_guard<decltype(lock_)> lock_guard;
 };
 
 #endif //THREAD__VECTOR_WRAPPER_H_
