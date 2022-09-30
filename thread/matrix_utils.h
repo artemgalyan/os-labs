@@ -113,9 +113,9 @@ void Print(const matrix::Matrix<T>& matrix) {
 }
 
 Matrix<int> GenerateMatrix(int m,
-                                 int n,
-                                 int min_value = std::numeric_limits<int>::min(),
-                                 int max_value = std::numeric_limits<int>::max());
+                           int n,
+                           int min_value = std::numeric_limits<int>::min(),
+                           int max_value = std::numeric_limits<int>::max());
 
 }
 
