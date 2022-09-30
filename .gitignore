@@ -393,3 +393,6 @@ FodyWeavers.xsd
 # CLion
 .idea/
 cmake-build-debug/
+
+# VIM
+.swp
