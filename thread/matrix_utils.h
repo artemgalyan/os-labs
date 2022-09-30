@@ -66,6 +66,9 @@ Matrix<T> JoinIntoMatrix(const Matrix<NumberMatrix<T>>& matrix, int m, int n) {
 
 template<typename T>
 Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size) {
+  if (!Matrix<T>::AreMatched(a, b)) {
+    throw std::invalid_argument("Matrices are not matched");
+  }
   Matrix<NumberMatrix<T>> a_split = SplitIntoBlocks(a, block_size);
   Matrix<NumberMatrix<T>> b_split = SplitIntoBlocks(b, block_size);
   Matrix<NumberMatrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
