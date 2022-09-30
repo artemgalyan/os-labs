@@ -15,6 +15,8 @@ class VectorWrapper {
   explicit VectorWrapper(size_type size, T element) {
     data_ = std::vector<T>(size, element);
   }
+  explicit VectorWrapper(std::vector<T>&& v) : data_(std::move(v)) {}
+  explicit VectorWrapper(std::vector<T> v) : data_(std::move(v)) {}
   VectorWrapper<T>& operator=(const VectorWrapper<T>& a) {
     if (this == &a)
       return *this;
