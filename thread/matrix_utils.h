@@ -64,11 +64,14 @@ Matrix<T> JoinIntoMatrix(const Matrix<Matrix<T>>& matrix, int m, int n) {
 }
 
 template<MatrixType T>
-Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size) {
+Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size = -1) {
   if (!Matrix<T>::AreMatched(a, b)) {
     throw std::invalid_argument("Matrices are not matched");
   }
 
+  if (block_size < 1) {
+    block_size = std::min({a.GetM(), a.GetN(), b.GetM()}) / 2;
+  }
   Matrix<Matrix<T>> a_split = SplitIntoBlocks(a, block_size);
   Matrix<Matrix<T>> b_split = SplitIntoBlocks(b, block_size);
   Matrix<Matrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
