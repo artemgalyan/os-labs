@@ -14,7 +14,6 @@ concept MatrixType = requires(T a, T b) {
   { a * b } -> std::same_as<T>;
   std::copy_constructible<T>;
   std::assignable_from<T, T>;
-  a += b;
 };
 
 template<MatrixType T>
