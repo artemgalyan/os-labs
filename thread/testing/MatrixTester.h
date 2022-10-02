@@ -16,7 +16,7 @@ class MatrixTester {
   typedef matrix::Matrix<int> def_matrix;
   void RunTests() const;
  private:
-  static void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) ;
+  void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) const;
   def_matrix a_, b_;
   int max_block_size_;
 };
