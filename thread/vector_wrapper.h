@@ -38,12 +38,12 @@ class VectorWrapper {
     data_.push_back(value);
   }
 
-  T At(size_t index) const {
-	lock_guard lock(lock_);
-    return data_.at(index);
+  T& At(size_t index) {
+    lock_guard lock(lock_);
+    return data_[index];
   }
 
-  T& AtRef(size_t index) {
+  const T& At(size_t index) const {
     lock_guard lock(lock_);
     return data_[index];
   }

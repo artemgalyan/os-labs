@@ -1,5 +1,5 @@
-#ifndef THREAD__MATRIX_H_
-#define THREAD__MATRIX_H_
+#ifndef MY_THREAD__MY_MATRIX_H_
+#define MY_THREAD__MY_MATRIX_H_
 
 #include <cmath>
 #include <thread>
@@ -9,9 +9,9 @@
 namespace matrix {
 
 template<typename T>
-concept MatrixType = requires (T a, T b) {
-  {a + b} -> std::same_as<T>;
-  {a * b} -> std::same_as<T>;
+concept MatrixType = requires(T a, T b) {
+  { a + b } -> std::same_as<T>;
+  { a * b } -> std::same_as<T>;
   std::copy_constructible<T>;
   std::assignable_from<T, T>;
   a += b;
@@ -21,13 +21,13 @@ template<MatrixType T>
 class Matrix {
  public:
   explicit Matrix(const std::vector<std::vector<T>>& vector) {
-	for (const auto& line: vector) {
-	  data_.PushBack(VectorWrapper<T>(line));
-	}
-	m_ = data_.Size();
-	n_ = data_.AtRef(0).Size();	
-  }	 
-  Matrix(int m, int n) : m_(m), n_(n) {
+    for (const auto& line : vector) {
+      data_.PushBack(VectorWrapper<T>(line));
+    }
+    m_ = data_.Size();
+    n_ = data_.At(0).Size();
+  }
+  explicit Matrix(int m, int n) : m_(m), n_(n) {
     data_ = VectorWrapper<VectorWrapper<T>>(m, VectorWrapper<T>(n));
   }
   Matrix() : Matrix(0, 0) {};
@@ -40,7 +40,7 @@ class Matrix {
     return data_.At(i).At(j);
   }
   void Set(size_t i, size_t j, T value) {
-    data_.AtRef(i).Set(j, value);
+    data_.At(i).Set(j, value);
   }
   [[nodiscard]] int GetM() const {
     return m_;
@@ -60,7 +60,7 @@ class Matrix {
   }
   Matrix operator+(const Matrix<T>& other) const {
     if (other.n_ != n_ || other.m_ != m_)
-      throw std::logic_error("Matrixes have different sizes!");
+      throw std::logic_error("Matrices have different sizes!");
     Matrix<T> matrix(*this);
     int m = m_;
     int n = n_;
@@ -85,7 +85,7 @@ class Matrix {
   }
   Matrix<T> operator*(const Matrix<T>& other) const {
     if (!AreMatched(*this, other)) {
-      throw std::logic_error("Matrix do not match");
+      throw std::logic_error("Matrices do not match");
     }
     size_t m = this->GetM();
     size_t n = other.GetN();
@@ -99,6 +99,12 @@ class Matrix {
   }
  private:
   static T Multiply(VectorWrapper<T> a, VectorWrapper<T> b) {
+    if (a.IsEmpty() && b.IsEmpty()) {
+      throw std::invalid_argument("Vectors are empty!");
+    }
+    if (a.Size() != b.Size()) {
+      throw std::invalid_argument("Vectors have different size!");
+    }
     T result = a.At(0) * b.At(0);
     for (int i = 1; i < a.Size(); ++i) {
       result = result + a.At(i) * b.At(i);
@@ -110,4 +116,4 @@ class Matrix {
   VectorWrapper<VectorWrapper<T>> data_;
 };
 }
-#endif //THREAD__MATRIX_H_
+#endif
