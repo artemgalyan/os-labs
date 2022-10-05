@@ -4,8 +4,15 @@
 #include <mutex>
 #include <vector>
 
+#define VECTOR_USE_FAKE_LOCK_GUARD
+
 template<class T>
 class VectorWrapper {
+#ifdef VECTOR_USE_FAKE_LOCK_GUARD
+  struct FakeLockGuard {
+    explicit FakeLockGuard(std::mutex&) {}
+  };
+#endif
  public:
   VectorWrapper() = default;
   explicit VectorWrapper(size_t size) {
@@ -63,7 +70,11 @@ class VectorWrapper {
  private:
   mutable std::mutex lock_;
   std::vector<T> data_;
+#ifdef VECTOR_USE_FAKE_LOCK_GUARD
+  typedef FakeLockGuard lock_guard;
+#else
   typedef std::lock_guard<decltype(lock_)> lock_guard;
+#endif
 };
 
 #endif //THREAD__VECTOR_WRAPPER_H_
