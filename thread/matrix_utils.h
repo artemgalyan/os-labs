@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <random>
+#include <thread>
 
 namespace matrix {
 

@@ -2,7 +2,6 @@
 #define MY_THREAD__MY_MATRIX_H_
 
 #include <cmath>
-#include <thread>
 
 #include "vector_wrapper.h"
 
@@ -70,7 +69,7 @@ class Matrix {
     }
     return matrix;
   }
-  Matrix& operator+=(const Matrix<T>& other) {
+  Matrix<T>& operator+=(const Matrix<T>& other) {
     if (other.n_ != n_ || other.m_ != m_)
       throw std::logic_error("Matrices have different sizes!");
     int m = m_;
@@ -95,6 +94,15 @@ class Matrix {
       }
     }
     return result;
+  }
+  Matrix<T>& operator=(const Matrix<T>& other) {
+    if (&other == this) {
+      return *this;
+    }
+    m_ = other.m_;
+    n_ = other.n_;
+    data_ = other.data_;
+    return *this;
   }
  private:
   static T Multiply(VectorWrapper<T> a, VectorWrapper<T> b) {
