@@ -19,7 +19,7 @@ void MatrixTester::RunTests() const {
     TestResult tr;
     tr.block_size = block_size;
     timer.Reset();
-    matrix::MultiplyMultithreaded(a_, b_, block_size);
+    volatile auto c = matrix::MultiplyMultithreaded(a_, b_, block_size);
     tr.duration = timer.MeasureTime();
     results.push_back(tr);
   }

@@ -4,7 +4,7 @@
 #include <mutex>
 #include <vector>
 
-#define VECTOR_USE_FAKE_LOCK_GUARD
+#include "defines.h"
 
 template<class T>
 class VectorWrapper {
@@ -35,14 +35,15 @@ class VectorWrapper {
   };
   VectorWrapper(const VectorWrapper& a) {
     lock_guard lock(lock_);
-	data_.clear();
-    for (auto i = 0; i < a.Size(); ++i) {
-      data_.push_back(a.At(i));
-    }
+    data_.resize(a.data_.size());
+    std::copy(a.data_.begin(), a.data_.end(), data_.begin());
   };
   void PushBack(T value) {
     lock_guard lock(lock_);
     data_.push_back(value);
+#ifdef ALWAYS_SHRINK_TO_FIT
+    data_.shrink_to_fit();
+#endif
   }
 
   T& At(size_t index) {
@@ -53,6 +54,11 @@ class VectorWrapper {
   const T& At(size_t index) const {
     lock_guard lock(lock_);
     return data_[index];
+  }
+
+  const T* AtPtr(size_t index) const {
+    lock_guard lock(lock_);
+    return &data_[index];
   }
 
   void Set(size_t index, T value) {

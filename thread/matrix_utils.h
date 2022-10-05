@@ -7,6 +7,8 @@
 #include <random>
 #include <thread>
 
+#include "defines.h"
+
 namespace matrix {
 
 template<MatrixType T>
@@ -65,6 +67,35 @@ Matrix<T> JoinIntoMatrix(const Matrix<Matrix<T>>& matrix, int m, int n) {
 }
 
 template<MatrixType T>
+static void ThreadMultiplyFunction(const Matrix<Matrix<T>>& a_split, const Matrix<Matrix<T>>& b_split,
+                                   Matrix<Matrix<T>>& result_blocks,
+                                   int i,
+                                   int j) {
+#ifdef USE_PTRS_FOR_ROWS_AND_COLS
+  int m = a_split.GetPtr(i, 0)->GetM();
+  int n = b_split.GetPtr(0, j)->GetN();
+#else
+  int m = a_split.Get(i, 0).GetM();
+            int n = b_split.Get(0, j).GetN();
+#endif
+  Matrix<T> matrix(m, n);
+#ifdef USE_PTRS_FOR_ROWS_AND_COLS
+  auto row = a_split.GetRowPtr(i);
+  auto col = b_split.GetColumnPtr(j);
+  for (int l = 0; l < row.Size(); ++l) {
+    matrix += (*row.At(l)) * (*col.At(l));
+  }
+#else
+  auto row = a_split.GetRow(i);
+            auto col = b_split.GetColumn(j);
+            for (int l = 0; l < row.Size(); ++l) {
+              matrix += row.At(l) * col.At(l);
+            }
+#endif
+  result_blocks.Set(i, j, matrix);
+}
+
+template<MatrixType T>
 Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size = -1) {
   if (!Matrix<T>::AreMatched(a, b)) {
     throw std::invalid_argument("Matrices are not matched");
@@ -76,23 +107,13 @@ Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int bloc
   Matrix<Matrix<T>> a_split = SplitIntoBlocks(a, block_size);
   Matrix<Matrix<T>> b_split = SplitIntoBlocks(b, block_size);
   Matrix<Matrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
-  std::vector<std::thread> threads;
-  for (int i = 0; i < result_blocks.GetM(); ++i) {
-    for (int j = 0; j < result_blocks.GetN(); ++j) {
-      std::thread thread(
-          [&a_split, &b_split, &result_blocks, i, j]() {
-            int m = a_split.Get(i, 0).GetM();
-            int n = b_split.Get(0, j).GetN();
-
-            Matrix<T> matrix(m, n);
-            auto row = a_split.GetRow(i);
-            auto col = b_split.GetColumn(j);
-            for (int l = 0; l < row.Size(); ++l) {
-              matrix += row.At(l) * col.At(l);
-            }
-            result_blocks.Set(i, j, matrix);
-          });
-      threads.push_back(std::move(thread));
+  const unsigned long long m = result_blocks.GetM();
+  const unsigned long long n = result_blocks.GetN();
+  std::vector<std::thread> threads(m * n);
+  for (auto i = 0; i < m; ++i) {
+    for (auto j = 0; j < n; ++j) {
+      std::thread thread(ThreadMultiplyFunction<T>, std::ref(a_split), std::ref(b_split), std::ref(result_blocks), i, j);
+      threads[i * n + j] = std::move(thread);
     }
   }
   for (auto& thread : threads) {

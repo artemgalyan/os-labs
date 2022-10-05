@@ -37,6 +37,9 @@ class Matrix {
   T Get(size_t i, size_t j) const {
     return data_.At(i).At(j);
   }
+  const T* GetPtr(size_t i, size_t j) const {
+    return data_.At(i).AtPtr(j);
+  }
   void Set(size_t i, size_t j, T value) {
     data_.At(i).Set(j, value);
   }
@@ -53,6 +56,20 @@ class Matrix {
     VectorWrapper<T> result;
     for (int i = 0; i < m_; ++i) {
       result.PushBack(data_.At(i).At(column));
+    }
+    return result;
+  }
+  VectorWrapper<const T*> GetRowPtr(int row) const {
+    VectorWrapper<const T*> result(n_);
+    for (int i = 0; i < n_; ++i) {
+      result.Set(i,data_.AtPtr(row)->AtPtr(i));
+    }
+    return result;
+  }
+  VectorWrapper<const T*> GetColumnPtr(int column) const {
+    VectorWrapper<const T*> result(m_);
+    for (int i = 0; i < m_; ++i) {
+      result.Set(i,data_.AtPtr(i)->AtPtr(column));
     }
     return result;
   }
@@ -105,7 +122,7 @@ class Matrix {
     return *this;
   }
  private:
-  static T Multiply(VectorWrapper<T> a, VectorWrapper<T> b) {
+  static T Multiply(const VectorWrapper<T>& a, const VectorWrapper<T>& b) {
     if (a.IsEmpty() && b.IsEmpty()) {
       throw std::invalid_argument("Vectors are empty!");
     }
