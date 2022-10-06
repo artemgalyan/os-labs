@@ -15,10 +15,16 @@ class MatrixTester {
   explicit MatrixTester(int m, int n, int l);
   typedef matrix::Matrix<int> def_matrix;
   void RunTests() const;
+  void SetStartBlockSize(int value);
+  void SetStep(int new_step);
+  void SetEndBlockSize(int new_end_size);
  private:
   void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) const;
   def_matrix a_, b_;
   int max_block_size_;
+  int start_block_size_ = 1;
+  int end_block_size_;
+  int step_ = 1;
 };
 
 #endif //THREAD_TESTING_MATRIXTESTER_H_

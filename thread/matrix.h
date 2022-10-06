@@ -121,6 +121,20 @@ class Matrix {
     data_ = other.data_;
     return *this;
   }
+  bool operator==(const Matrix<T>& other) const {
+    if (m_ != other.m_ || n_ != other.n_)
+      return false;
+    for (auto i = 0; i < m_; ++i) {
+      for (auto j = 0; j < n_; ++j) {
+        if (Get(i, j) != other.Get(i, j))
+          return false;
+      }
+    }
+    return true;
+  }
+  bool operator!=(const Matrix<T>& other) const {
+    return !(*this == other);
+  }
  private:
   static T Multiply(const VectorWrapper<T>& a, const VectorWrapper<T>& b) {
     if (a.IsEmpty() && b.IsEmpty()) {

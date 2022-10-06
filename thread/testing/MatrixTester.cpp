@@ -8,25 +8,31 @@ MatrixTester::MatrixTester(int m, int n, int l) {
   a_ = matrix::GenerateMatrix(m, n, MIN_MATRIX_VALUE, MAX_MATRIX_VALUE);
   b_ = matrix::GenerateMatrix(n, l, MIN_MATRIX_VALUE, MAX_MATRIX_VALUE);
   max_block_size_ = std::min(m, std::min(n, l)) + 1;
+  end_block_size_ = max_block_size_;
 }
 
 void MatrixTester::RunTests() const {
   std::cout << "Starting tests.." << std::endl;
   std::vector<TestResult> results;
   Timer timer;
-  for (int block_size = 1; block_size < max_block_size_; ++block_size) {
+  std::cout << "Running test for 1 thread" << std::endl;
+  timer.Reset();
+  auto result = a_ * b_;
+  auto duration = timer.MeasureTime();
+  for (int block_size = start_block_size_; block_size < max_block_size_ && block_size < end_block_size_; block_size += step_) {
     std::cout << "Running test for block size " << block_size << std::endl;
     TestResult tr;
     tr.block_size = block_size;
     timer.Reset();
-    volatile auto c = matrix::MultiplyMultithreaded(a_, b_, block_size);
+    auto c = matrix::MultiplyMultithreaded(a_, b_, block_size);
     tr.duration = timer.MeasureTime();
+#ifdef TESTER_CHECK_MULTIPLICATION_RESULTS
+    if (c != result) {
+      std::cerr << "An error occurred while multiplying matrices with block size " << block_size << std::endl;
+    }
+#endif
     results.push_back(tr);
   }
-  std::cout << "Running test for 1 thread" << std::endl;
-  timer.Reset();
-  auto res = a_ * b_;
-  auto duration = timer.MeasureTime();
   PrintResults(results, {duration, -1});
 }
 
@@ -58,4 +64,16 @@ void MatrixTester::PrintResults(const std::vector<TestResult>& res, TestResult o
   }
   std::cout << "Fastest is: block size is " << fastest.block_size << ", time is " << fastest.duration << " ("
             << (double) fastest.duration / one_threaded.duration * 100 << "%) from 1 threaded." << std::endl;
+}
+void MatrixTester::SetStartBlockSize(int value) {
+  start_block_size_ = value;
+}
+void MatrixTester::SetStep(int new_step) {
+  if (new_step < 1)
+    throw std::logic_error("Step should be >= 1");
+  step_ = new_step;
+}
+
+void MatrixTester::SetEndBlockSize(int new_end_size) {
+  end_block_size_ = new_end_size;
 }

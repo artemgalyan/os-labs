@@ -6,4 +6,6 @@
 
 #define USE_PTRS_FOR_ROWS_AND_COLS // generally works better with that
 
+//#define TESTER_CHECK_MULTIPLICATION_RESULTS
+
 #endif //THREAD_TESTING_DEFINES_H_
