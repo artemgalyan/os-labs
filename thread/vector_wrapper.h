@@ -47,17 +47,14 @@ class VectorWrapper {
   }
 
   T& At(size_t index) {
-    lock_guard lock(lock_);
     return data_[index];
   }
 
   const T& At(size_t index) const {
-    lock_guard lock(lock_);
     return data_[index];
   }
 
   const T* AtPtr(size_t index) const {
-    lock_guard lock(lock_);
     return &data_[index];
   }
 
@@ -66,11 +63,11 @@ class VectorWrapper {
     data_[index] = value;
   }
 
-  [[nodiscard]] bool IsEmpty() const {
+  bool IsEmpty() const {
     return data_.empty();
   }
 
-  [[nodiscard]] size_t Size() const {
+  size_t Size() const {
     return data_.size();
   }
  private:
