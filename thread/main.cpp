@@ -4,10 +4,13 @@
 #include "testing/MatrixTester.h"
 
 int main() {
-  const int m = 18;
-  const int n = 15;
-  const int l = 40;
+  const int size = 150;
+  const int m = size;
+  const int n = size;
+  const int l = size;
   MatrixTester tester(m, n, l);
-  tester.RunTests();
+  tester.SetStartBlockSize(10)
+        .CheckResults(true)
+        .RunTests();
   return 0;
 }

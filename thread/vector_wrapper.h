@@ -1,10 +1,10 @@
 #ifndef THREAD__VECTOR_WRAPPER_H_
 #define THREAD__VECTOR_WRAPPER_H_
 
+#define VECTOR_USE_FAKE_LOCK_GUARD // significantly improves the performance, but I recommend to use it for safety
+
 #include <mutex>
 #include <vector>
-
-#include "defines.h"
 
 template<class T>
 class VectorWrapper {
@@ -41,9 +41,6 @@ class VectorWrapper {
   void PushBack(T value) {
     lock_guard lock(lock_);
     data_.push_back(value);
-#ifdef ALWAYS_SHRINK_TO_FIT
-    data_.shrink_to_fit();
-#endif
   }
 
   T& At(size_t index) {

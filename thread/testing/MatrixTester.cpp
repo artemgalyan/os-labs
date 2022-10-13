@@ -19,18 +19,17 @@ void MatrixTester::RunTests() const {
   timer.Reset();
   auto result = a_ * b_;
   auto duration = timer.MeasureTime();
-  for (int block_size = start_block_size_; block_size < max_block_size_ && block_size < end_block_size_; block_size += step_) {
+  for (int block_size = start_block_size_; block_size < max_block_size_ && block_size < end_block_size_;
+       block_size += step_) {
     std::cout << "Running test for block size " << block_size << std::endl;
     TestResult tr;
     tr.block_size = block_size;
     timer.Reset();
     auto c = matrix::MultiplyMultithreaded(a_, b_, block_size);
     tr.duration = timer.MeasureTime();
-#ifdef TESTER_CHECK_MULTIPLICATION_RESULTS
-    if (c != result) {
+    if (check_results_ && c != result) {
       std::cerr << "An error occurred while multiplying matrices with block size " << block_size << std::endl;
     }
-#endif
     results.push_back(tr);
   }
   PrintResults(results, {duration, -1});
@@ -65,15 +64,22 @@ void MatrixTester::PrintResults(const std::vector<TestResult>& res, TestResult o
   std::cout << "Fastest is: block size is " << fastest.block_size << ", time is " << fastest.duration << " ("
             << (double) fastest.duration / one_threaded.duration * 100 << "%) from 1 threaded." << std::endl;
 }
-void MatrixTester::SetStartBlockSize(int value) {
+MatrixTester& MatrixTester::SetStartBlockSize(int value) {
   start_block_size_ = value;
+  return *this;
 }
-void MatrixTester::SetStep(int new_step) {
+MatrixTester& MatrixTester::SetStep(int new_step) {
   if (new_step < 1)
     throw std::logic_error("Step should be >= 1");
   step_ = new_step;
+  return *this;
 }
 
-void MatrixTester::SetEndBlockSize(int new_end_size) {
+MatrixTester& MatrixTester::SetEndBlockSize(int new_end_size) {
   end_block_size_ = new_end_size;
+  return *this;
+}
+MatrixTester& MatrixTester::CheckResults(bool value) {
+  check_results_ = value;
+  return *this;
 }

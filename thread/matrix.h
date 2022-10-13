@@ -37,8 +37,8 @@ class Matrix {
   T Get(size_t i, size_t j) const {
     return data_.At(i).At(j);
   }
-  const T* GetPtr(size_t i, size_t j) const {
-    return data_.At(i).AtPtr(j);
+  T& GetRef(size_t i, size_t j) {
+    return data_.At(i).At(j);
   }
   void Set(size_t i, size_t j, T value) {
     data_.At(i).Set(j, value);
@@ -62,14 +62,14 @@ class Matrix {
   VectorWrapper<const T*> GetRowPtr(int row) const {
     VectorWrapper<const T*> result(n_);
     for (int i = 0; i < n_; ++i) {
-      result.Set(i,data_.AtPtr(row)->AtPtr(i));
+      result.Set(i, data_.AtPtr(row)->AtPtr(i));
     }
     return result;
   }
   VectorWrapper<const T*> GetColumnPtr(int column) const {
     VectorWrapper<const T*> result(m_);
     for (int i = 0; i < m_; ++i) {
-      result.Set(i,data_.AtPtr(i)->AtPtr(column));
+      result.Set(i, data_.AtPtr(i)->AtPtr(column));
     }
     return result;
   }
@@ -89,6 +89,8 @@ class Matrix {
   Matrix<T>& operator+=(const Matrix<T>& other) {
     if (other.n_ != n_ || other.m_ != m_)
       throw std::logic_error("Matrices have different sizes!");
+    static std::mutex mutex;
+    mutex.lock();
     int m = m_;
     int n = n_;
     for (int i = 0; i < m; ++i) {
@@ -96,6 +98,7 @@ class Matrix {
         Set(i, j, Get(i, j) + other.Get(i, j));
       }
     }
+    mutex.unlock();
     return *this;
   }
   Matrix<T> operator*(const Matrix<T>& other) const {
