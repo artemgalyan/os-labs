@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+#VS Code
+build/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -393,3 +396,6 @@ FodyWeavers.xsd
 # CLion
 .idea/
 cmake-build-debug/
+
+# VIM
+.swp
