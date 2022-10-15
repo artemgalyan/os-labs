@@ -6,17 +6,17 @@ int main() {
   BufferedChannel<int> channel(CHANNEL_SIZE);
   for (int i = 0; i < CHANNEL_SIZE; ++i)
     channel.Send(i);
-  std::vector<std::thread> threads;
-  threads.emplace_back([&channel](){
+  std::thread thread([&channel](){
     std::this_thread::sleep_for(std::chrono::seconds(2));
     channel.Send(100);
     std::cout << "Value is sent" << std::endl;
     channel.Close();
   });
   for (int i = 0; i < 12; ++i) {
-    std::cout << channel.Receive().first << std::endl;
+    std::pair<int, bool> value = channel.Receive();
+    std::cout << value.first << " " << (int)value.second << std::endl;
   }
-  threads.front().join();
+  thread.join();
 
   return 0;
 }
