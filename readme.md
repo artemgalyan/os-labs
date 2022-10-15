@@ -6,7 +6,7 @@
 
 ## lab-1
 > [Task][lab-1-task-source]: create both static and dynamic libraries for both Linux and Windows  
-> Note: real dates of commits are in branch "lab-1" because of reverting of merging lab-1 branch into master and reverting that revert.  
+> **Note**: real dates of commits are in branch "lab-1" because of reverting of merging lab-1 branch into master and reverting that revert.  
 > **[Solution for Windows](windows)**  
 > **[Solution for Linux](linux)**
 
