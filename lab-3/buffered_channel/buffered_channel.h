@@ -22,8 +22,8 @@ class BufferedChannel {
   bool can_read_{};
   bool is_closed_ = false;
  public:
-  const static bool REAL_ELEMENT = true;
-  const static bool NOT_REAL_ELEMENT = false;
+  constexpr const static bool REAL_ELEMENT = true;
+  constexpr const static bool NOT_REAL_ELEMENT = false;
   explicit BufferedChannel(size_t max_size) : max_size_(max_size) {
     UpdateState();
   }
