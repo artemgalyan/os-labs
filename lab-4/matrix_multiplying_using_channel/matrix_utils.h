@@ -69,9 +69,10 @@ Matrix<T> JoinIntoMatrix(const Matrix<Matrix<T>>& matrix, int m, int n) {
 void MultiplyThreadFunction(BufferedChannel<std::function<void()>>& channel);
 
 template<MatrixType T>
-Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size = -1) {
-  const int MAX_THREADS = 1000;
-
+Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size = -1, int number_of_threads = 10000) {
+  if (number_of_threads < 1) {
+    throw std::logic_error("Wrong number of threads!");
+  }
   if (!Matrix<T>::AreMatched(a, b)) {
     throw std::invalid_argument("Matrices are not matched");
   }
@@ -88,7 +89,7 @@ Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int bloc
   std::vector<std::thread> threads;
 
   BufferedChannel<std::function<void()>> tasks(m * n * k);
-  for (int i = 0; i < MAX_THREADS; ++i) {
+  for (int i = 0; i < number_of_threads; ++i) {
     threads.emplace_back(MultiplyThreadFunction, std::ref(tasks));
   }
   std::thread tasks_setup([&]() {

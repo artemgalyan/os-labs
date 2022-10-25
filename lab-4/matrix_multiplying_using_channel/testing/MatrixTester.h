@@ -9,23 +9,21 @@ class MatrixTester {
   typedef long long time_type;
   struct TestResult {
     time_type duration;
-    int block_size;
+    int thread_count;
   };
  public:
-  explicit MatrixTester(int m, int n, int l);
+  explicit MatrixTester(int m, int n, int l, int block_size_);
   typedef matrix::Matrix<int> def_matrix;
   void RunTests() const;
-  MatrixTester& SetStartBlockSize(int value);
   MatrixTester& SetStep(int new_step);
-  MatrixTester& SetEndBlockSize(int new_end_size);
+  MatrixTester& SetStartThreadsCount(int count);
   MatrixTester& CheckResults(bool value);
  private:
   bool check_results_ = true;
-  void PrintResults(const std::vector<TestResult>&, TestResult one_threaded) const;
+  void PrintResults(const std::vector<TestResult>&) const;
   def_matrix a_, b_;
-  int max_block_size_;
-  int start_block_size_ = 1;
-  int end_block_size_;
+  int block_size_;
+  int start_threads_count_ = 1;
   int step_ = 1;
 };
 
