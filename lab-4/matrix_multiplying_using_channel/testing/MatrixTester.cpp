@@ -17,9 +17,11 @@ void MatrixTester::RunTests() const {
   def_matrix result;
   if (check_results_)
     result = a_ * b_;
-  int max_number_of_threads = ceil((double) a_.GetM() / block_size_) * ceil((double) a_.GetN() / block_size_)
+  long long int max_number_of_threads = ceil((double) a_.GetM() / block_size_) * ceil((double) a_.GetN() / block_size_)
       * ceil((double) b_.GetN() / block_size_) * ceil((double) b_.GetM() / block_size_);
-  for (int threads = start_threads_count_; threads <= max_number_of_threads; threads += step_) {
+  if (max_number_of_threads > 100000)
+    max_number_of_threads = 100000;
+  for (long long int threads = start_threads_count_; threads <= max_number_of_threads; threads += step_) {
     std::cout << "Running test for " << threads << " thread(s). " << std::endl;
     TestResult tr;
     tr.thread_count = threads;
