@@ -24,7 +24,7 @@ void MatrixTester::RunTests() const {
     TestResult tr;
     tr.thread_count = threads;
     timer.Reset();
-    auto c = matrix::MultiplyMultithreaded(a_, b_, block_size_);
+    auto c = matrix::MultiplyMultithreaded(a_, b_, block_size_, threads);
     tr.duration = timer.MeasureTime();
     if (check_results_ && c != result) {
       std::cerr << "An error occurred while multiplying matrices with " << threads << " threads" << std::endl;
