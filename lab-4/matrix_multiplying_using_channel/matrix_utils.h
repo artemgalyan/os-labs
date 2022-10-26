@@ -71,7 +71,7 @@ void MultiplyThreadFunction(BufferedChannel<std::function<void()>>& channel);
 template<MatrixType T>
 Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int block_size = -1, int number_of_threads = 10000) {
   if (number_of_threads < 1) {
-    throw std::logic_error("Wrong number of threads!");
+    throw std::invalid_argument("Wrong number of threads!");
   }
   if (!Matrix<T>::AreMatched(a, b)) {
     throw std::invalid_argument("Matrices are not matched");
