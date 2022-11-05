@@ -11,4 +11,7 @@ else()
   message(FATAL_ERROR "Failed to defined OS")
 endif()
 
-add_executable(lab_5 main.cpp threads/Thread.h ${THREAD_CLASS})
+add_executable(lab_5 main.cpp threads/Thread.h ${THREAD_CLASS}
+    matrix.h matrix_utils.h matrix_utils.cpp
+    vector_wrapper.h testing/Timer.cpp testing/Timer.h
+    testing/MatrixTester.cpp testing/MatrixTester.h)
