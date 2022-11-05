@@ -6,12 +6,6 @@
 #include "windows.h"
 
 class WinThread {
- private:
-  template<class Function>
-  struct ThreadData {
-    Function function;
-    void* args;
-  };
  public:
   WinThread() {
     joined_ = true;
@@ -20,7 +14,7 @@ class WinThread {
     thread_handle_ = nullptr;
   }
   WinThread(const WinThread&) = delete;
-  WinThread(WinThread&& other) {
+  WinThread(WinThread&& other)  noexcept {
     data_ = other.data_;
     other.data_ = nullptr;
     joined_ = other.joined_;
