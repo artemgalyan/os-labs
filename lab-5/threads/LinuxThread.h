@@ -31,7 +31,7 @@ class LinuxThread {
     thread_id_ = 0;
     data_ = nullptr;
   }
-  LinuxThread(LinuxThread&& other) {
+  LinuxThread(LinuxThread&& other) noexcept {
     data_ = other.data_;
     other.data_ = nullptr;
     joined_ = other.joined_;
