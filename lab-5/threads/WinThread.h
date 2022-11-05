@@ -26,12 +26,13 @@ class WinThread {
   }
   template<class Function, class ...Args>
   explicit WinThread(Function function, Args... args) {
-    using data_t = std::tuple<Args...>;
+    using data_pack_t = std::tuple<Args...>;
     thread_id_ = 0;
-    data_t args_data = std::make_tuple<Args...>(std::move(args)...);
-    data_ = new std::pair<Function, data_t>{function, args_data};
+    data_pack_t args_data = std::make_tuple<Args...>(std::move(args)...);
+    using passed_data_t = std::pair<Function, data_t>;
+    data_ = new passed_data_t{function, args_data};
     thread_handle_ = CreateThread(nullptr, 0, [](void* data) -> DWORD {
-      std::pair<Function, data_t> d = *((std::pair<Function, data_t>*) data);
+      passed_data_t d = *((passed_data_t*) data);
       std::apply(d.first, d.second);
       return 0;
     }, data_, 0, (LPDWORD) &thread_id_);
@@ -45,6 +46,9 @@ class WinThread {
     }
   }
   void Join() {
+    if (!IsJoinable()) {
+      throw std::runtime_error("Cannot join the thread");
+    }
     WaitForSingleObject(thread_handle_, INFINITE);
     joined_ = true;
     delete (int*)data_;
@@ -61,6 +65,9 @@ class WinThread {
     return !joined_;
   }
   void Detach() {
+    if (joined_) {
+      throw std::runtime_error("Cannot detach joined thread");
+    }
     detached_ = true;
   }
   DWORD GetID() const {
