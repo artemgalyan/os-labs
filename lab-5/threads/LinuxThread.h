@@ -1,0 +1,4 @@
+#ifndef LAB_5__LINUXTHREAD_H_
+#define LAB_5__LINUXTHREAD_H_
+
+#endif //LAB_5__LINUXTHREAD_H_
