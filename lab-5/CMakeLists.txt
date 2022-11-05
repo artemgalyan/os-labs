@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(WIN32)
   set(THREAD_CLASS threads/WinThread.h)
-elseif(LINUX)
+elseif(UNIX)
   set(THREAD_CLASS threads/LinuxThread.h threads/Thread.h)
 else()
   message(FATAL_ERROR "Failed to defined OS")

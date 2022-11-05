@@ -100,16 +100,39 @@ Matrix<T> MultiplyMultithreaded(const Matrix<T>& a, const Matrix<T>& b, int bloc
   if (block_size < 1) {
     block_size = std::min({a.GetM(), a.GetN(), b.GetM()}) / 2;
   }
+
+#if __linux__
+  int _k = ceil(a.GetN() / block_size);
+  if (_k >= LinuxThread::MAX_NUMBER_OF_THREADS) {
+    throw std::invalid_argument("k / block_size > " + std::to_string(LinuxThread::MAX_NUMBER_OF_THREADS) +
+          ", cannot multiply matrices in multithreaded mode");
+  }
+#endif
+
   Matrix<Matrix<T>> a_split = SplitIntoBlocks(a, block_size);
   Matrix<Matrix<T>> b_split = SplitIntoBlocks(b, block_size);
   Matrix<Matrix<T>> result_blocks(a_split.GetM(), b_split.GetN());
-  const unsigned long long m = result_blocks.GetM();
-  const unsigned long long n = result_blocks.GetN();
-  std::vector<std::vector<Thread>> threads(m*n);
+  const size_t m = result_blocks.GetM();
+  const size_t n = result_blocks.GetN();
+  const size_t k = a_split.GetN();
+  std::vector<std::vector<Thread>> threads;
+  size_t thread_count = 0;
   for (auto i = 0; i < m; ++i) {
     for (auto j = 0; j < n; ++j) {
+#if __linux__ // LINUX has limit of threads
+      if (thread_count + k >= LinuxThread::MAX_NUMBER_OF_THREADS) {
+        for (auto& tr: threads) {
+          for (auto& thread: tr) {
+            thread.Join();
+          }
+        }
+        thread_count = 0;
+        threads.clear();
+      }
+      thread_count += k;
+#endif
       auto threads_to_insert = CalculateBlock(a_split, b_split, result_blocks, i, j);
-      threads.push_back(std::move(threads_to_insert));
+      threads.emplace_back(std::move(threads_to_insert));
     }
   }
   for (auto& tr: threads) {
