@@ -22,3 +22,7 @@
 ## lab-4
 > Task: multiply matrices using multithreading and buffering channel  
 > **[Solution](lab-4/matrix_multiplying_using_channel)**
+
+## lab-5
+> Task: multiply matrices using WinAPI and pthread  
+> **[Windows thread](lab-5/threads/WinThread.h)**, **[Linux thread](lab-5/threads/LinuxThread.h)**
