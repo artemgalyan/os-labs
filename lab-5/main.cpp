@@ -4,6 +4,7 @@
 
 int main() {
   MatrixTester tester(50, 50, 50);
-  tester.RunTests();
+  tester.CheckResults(true)
+        .RunTests();
   return 0;
 }
