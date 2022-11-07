@@ -28,7 +28,7 @@ class WinThread {
     thread_id_ = 0;
     data_pack_t args_data = std::make_tuple<Args...>(std::move(args)...);
     using passed_data_t = std::pair<Function, data_pack_t>;
-    passed_data_t* data = new passed_data_t{function, args_data};
+    auto* data = new passed_data_t{function, args_data};
     thread_handle_ = CreateThread(nullptr, 0, &ThreadWrapperFunction<Function, Args...>, data, 0, (LPDWORD) &thread_id_);
     if (thread_handle_ == INVALID_HANDLE_VALUE) {
       delete data;
