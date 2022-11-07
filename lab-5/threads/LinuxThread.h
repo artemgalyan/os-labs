@@ -12,16 +12,10 @@ class LinuxThread {
     using data_pack_t = std::tuple<Args...>;
     data_pack_t pack = std::make_tuple<Args...>(std::move(args)...);
     using passed_data_t = std::pair<Function, data_pack_t>;
-    data_ = new passed_data_t(function, pack);
-    void* (*thread_func)(void*) = [](void* data) -> void* {
-      passed_data_t recv_data = *((passed_data_t*)data);
-      std::apply(recv_data.first, recv_data.second);
-      return nullptr;
-    };
-    int result = pthread_create(&thread_id_, nullptr, thread_func, data_);
+    auto* data = new passed_data_t(function, pack);
+    int result = pthread_create(&thread_id_, nullptr, &ThreadWrapperFunction<Function, Args...>, data);
     if (result != 0) {
-      delete (int*)data_;
-      data_ = nullptr;
+      delete data;
       throw std::runtime_error("Failed to create thread, return code " + std::to_string(result));
     }
   }
@@ -29,11 +23,8 @@ class LinuxThread {
     joined_ = true;
     detached_ = false;
     thread_id_ = 0;
-    data_ = nullptr;
   }
   LinuxThread(LinuxThread&& other) noexcept {
-    data_ = other.data_;
-    other.data_ = nullptr;
     joined_ = other.joined_;
     detached_ = other.detached_;
     thread_id_ = other.thread_id_;
@@ -50,8 +41,6 @@ class LinuxThread {
       throw std::runtime_error("Cannot join the thread");
     }
     pthread_join(thread_id_, nullptr);
-    delete (int*)data_;
-    data_ = nullptr;
     joined_ = true;
   }
   bool IsJoinable() const {
@@ -70,8 +59,17 @@ class LinuxThread {
     detached_ = true;
   }
  private:
+  template<typename Function, typename ...Args>
+  static void* ThreadWrapperFunction(void* data) {
+    using data_pack_t = std::tuple<Args...>;
+    using passed_data_t = std::pair<Function, data_pack_t>;
+    passed_data_t* data_ptr = (passed_data_t*) data;
+    passed_data_t passed_data = *data_ptr;
+    std::apply(passed_data.first, passed_data.second);
+    delete data_ptr;
+    return nullptr;
+  }
   pthread_t thread_id_;
-  void* data_;
   bool joined_ = false;
   bool detached_ = false;
 };
