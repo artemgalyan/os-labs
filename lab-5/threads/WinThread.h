@@ -15,8 +15,6 @@ class WinThread {
   }
   WinThread(const WinThread&) = delete;
   WinThread(WinThread&& other)  noexcept {
-    data_ = other.data_;
-    other.data_ = nullptr;
     joined_ = other.joined_;
     detached_ = other.detached_;
     thread_id_ = other.thread_id_;
@@ -29,14 +27,11 @@ class WinThread {
     using data_pack_t = std::tuple<Args...>;
     thread_id_ = 0;
     data_pack_t args_data = std::make_tuple<Args...>(std::move(args)...);
-    using passed_data_t = std::pair<Function, data_t>;
-    data_ = new passed_data_t{function, args_data};
-    thread_handle_ = CreateThread(nullptr, 0, [](void* data) -> DWORD {
-      passed_data_t d = *((passed_data_t*) data);
-      std::apply(d.first, d.second);
-      return 0;
-    }, data_, 0, (LPDWORD) &thread_id_);
+    using passed_data_t = std::pair<Function, data_pack_t>;
+    passed_data_t* data = new passed_data_t{function, args_data};
+    thread_handle_ = CreateThread(nullptr, 0, &ThreadWrapperFunction<Function, Args...>, data, 0, (LPDWORD) &thread_id_);
     if (thread_handle_ == INVALID_HANDLE_VALUE) {
+      delete data;
       throw std::runtime_error("Failed to create thread");
     }
   }
@@ -51,8 +46,6 @@ class WinThread {
     }
     WaitForSingleObject(thread_handle_, INFINITE);
     joined_ = true;
-    delete (int*)data_;
-    data_ = nullptr;
   }
   bool IsWorking() const {
     DWORD result = WaitForSingleObject(thread_handle_, 0);
@@ -74,7 +67,16 @@ class WinThread {
     return thread_id_;
   }
  private:
-  void* data_ = nullptr;
+  template<class Function, class ...Args>
+  static DWORD ThreadWrapperFunction(void* data) {
+    using data_pack_t = std::tuple<Args...>;
+    using passed_data_t = std::pair<Function, data_pack_t>;
+    passed_data_t* data_ptr = (passed_data_t*)data;
+    passed_data_t received_data = *data_ptr;
+    std::apply(received_data.first, received_data.second);
+    delete data_ptr;
+    return 0;
+  }
   bool joined_ = false;
   bool detached_ = false;
   DWORD thread_id_;
