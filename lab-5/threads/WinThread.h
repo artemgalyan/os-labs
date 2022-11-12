@@ -45,6 +45,7 @@ class WinThread {
       throw std::runtime_error("Cannot join the thread");
     }
     WaitForSingleObject(thread_handle_, INFINITE);
+    CloseHandle(thread_handle_);
     joined_ = true;
   }
   bool IsWorking() const {
