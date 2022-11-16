@@ -47,7 +47,6 @@ std::vector<Process> GetProcesses() {
 }
 
 bool Kill(const Process& to_kill, int exit_code = 1) {
-  std::cout << "Killing" << to_kill.name << " " << to_kill.id << std::endl;
   HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, to_kill.id);
   if (hProc == nullptr) {
     return false;

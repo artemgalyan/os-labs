@@ -3,4 +3,4 @@ project(user)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(user main.cpp)
+add_executable(user main.cpp Killer.cpp Killer.h)
