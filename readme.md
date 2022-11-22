@@ -31,4 +31,4 @@
 
 ## lab-6
 > [Task][lab-6-task-source]: User & Killer  
-> **[Windows solution](lab-6/windows)**
+> **[Windows solution](lab-6/windows)**, **[Linux solution](lab-6/linux)**
