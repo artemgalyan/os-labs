@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstring>
 #include <csignal>
+#include <sys/wait.h>
 
 std::string GetIdRegex(int id) {
   return R"(^\\s+)" + std::to_string(id) + R"(\\s\(\\?\|[\\w\|\\/\|\\d]+\)\\s*\\d{2}:\\d{2}:\\d{2}\\s*\\w+)";
@@ -100,6 +101,13 @@ void KillAll(const std::vector<std::string>& toKillByName,
     delete[] args;
     exit(0);
   }
+  else if (pid == -1) {
+    std::cerr << "Unable to start child process" << std::endl;
+    unsetenv("PROC_TO_KILL");
+    exit(pid);
+  }
+  int status;
+  waitpid(pid, &status, 0);
   unsetenv("PROC_TO_KILL");
 }
 
