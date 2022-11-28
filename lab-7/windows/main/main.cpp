@@ -3,7 +3,7 @@
 #include <string>
 
 std::string GetExecutablePath(const std::string& name) {
-  return "../../" + name + "/cmake-build-debug/" + name + ".exe";
+  return "../" + name + "/" + name + ".exe";
 }
 
 bool CreateProcess(const std::string& path, STARTUPINFO* si, PROCESS_INFORMATION* pi, bool inherit_handles = true) {
@@ -41,9 +41,6 @@ struct ProcessInfo {
     if (in != nullptr) {
       CloseHandle(in);
     }
-    //if (out != nullptr) {
-    //  CloseHandle(out);
-    //}
   }
   ProcessInfo& PipeTo(ProcessInfo& other) {
     SECURITY_ATTRIBUTES saPipe = {sizeof(SECURITY_ATTRIBUTES), nullptr, true};
@@ -61,15 +58,15 @@ struct ProcessInfo {
 int main() {
   ProcessInfo m("M"), a("A"), p("P"), s("S");
   SECURITY_ATTRIBUTES saFile = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
-  char fileName[] = "../file.txt";
+  char fileName[] = "../../file.txt";
   HANDLE hFileIn = CreateFile(fileName, GENERIC_READ, 0, &saFile, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   s.si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
   m.si.hStdInput = hFileIn;
   m | a | p | s;
-  m.CreateProc();
-  a.CreateProc();
-  p.CreateProc();
-  s.CreateProc();
+  if (!m.CreateProc()) { return -1; }
+  if (!a.CreateProc()) { return -1; }
+  if (!p.CreateProc()) { return -1; }
+  if (!s.CreateProc()) { return -1; }
   CloseHandle(hFileIn);
   return 0;
 }
