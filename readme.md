@@ -35,4 +35,4 @@
 
 ## lab-7
 > [Task][lab-7-task-source]: pipes  
-> **[Windows solution](lab-7/windows)**
+> **[Windows solution](lab-7/windows)**, **[Linux solution](lab-7/linux)**
