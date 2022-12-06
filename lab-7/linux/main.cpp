@@ -3,23 +3,32 @@
 #include <string>
 #include <cstring>
 #include <sys/wait.h>
+#include <vector>
+#include <algorithm>
 
 #define CHILD_PROCESS 0
-#define NOT_RUNNING (-5)
+#define NOT_RUNNING (-1)
+#define BUFF_SIZE 255
 
 void StartProcess(const std::string& path) {
-  char buff[200];
+  char buff[BUFF_SIZE];
   strcpy(buff, path.c_str());
   execl(buff, nullptr);
 }
 
-struct ProcessInfo {
+int system(const std::string& command) {
+  char buff[BUFF_SIZE];
+  strcpy(buff, command.c_str());
+  return system(buff);
+}
+
+struct Process {
   std::string path;
   int process_id = NOT_RUNNING;
   int stdIn = dup(STDIN_FILENO);
   int stdOut = dup(STDOUT_FILENO);
-  explicit ProcessInfo(std::string path) : path(std::move(path)) {}
-  bool CreateProc() {
+  explicit Process(std::string path) : path(std::move(path)) {}
+  bool TryStart() {
     int pid = fork();
     if (pid == -1) {
       return false;
@@ -29,40 +38,34 @@ struct ProcessInfo {
       return true;
     }
     if (stdIn != STDIN_FILENO) {
-      if (dup2(stdIn, 0) == -1) {
-        std::cerr << "Error1";
-      }
+      dup2(stdIn, 0);
       close(stdIn);
     }
     if (stdOut != STDOUT_FILENO) {
-      if (dup2(stdOut, 1) == -1) {
-        std::cerr << "Error2";
-      }
+      dup2(stdOut, 1);
       close(stdOut);
     }
     StartProcess(path);
-    std::exit(10);
+    std::exit(0);
   }
-  void WaitAndClose() const {
+  void Wait() {
     int status = 0;
     if (process_id != NOT_RUNNING)
       waitpid(process_id, &status, 0);
-    ClosePipes();
+    process_id = NOT_RUNNING;
   }
-  ~ProcessInfo() {
-    WaitAndClose();
-  }
-  void ClosePipes() const {
-    if (stdIn != STDIN_FILENO) {
-//      printf("in %i\n", stdIn);
-      close(stdIn);
+  void Terminate() {
+    if (process_id != NOT_RUNNING) {
+      system("kill " + std::to_string(process_id));
     }
-    if (stdOut != STDOUT_FILENO) {
-//      printf("out %i\n", stdOut);
-      close(stdOut);
-    }
+    process_id = NOT_RUNNING;
+    CloseDescriptors();
   }
-  ProcessInfo& PipeTo(ProcessInfo& other) {
+  ~Process() {
+    Wait();
+    CloseDescriptors();
+  }
+  Process& PipeTo(Process& other) {
     int pipes[2];
     if (pipe(pipes) == -1) {
       std::cerr << "Failed to create pipe" << std::endl;
@@ -73,18 +76,39 @@ struct ProcessInfo {
     other.stdIn = pipes[0];
     return other;
   }
-  ProcessInfo& operator|(ProcessInfo& other) {
+  Process& operator|(Process& other) {
     return PipeTo(other);
+  }
+ private:
+  void CloseDescriptors() const {
+    if (stdIn != STDIN_FILENO) {
+      close(stdIn);
+    }
+    if (stdOut != STDOUT_FILENO) {
+      close(stdOut);
+    }
   }
 };
 
 int main() {
-  ProcessInfo m("m"), a("a"), p("p"), s("s");
+  Process m("m"), a("a"), p("p"), s("s");
   m | a | p | s;
   close(STDIN_FILENO);
-  if (!m.CreateProc()) { return -1; }
-  if (!a.CreateProc()) { return -1; }
-  if (!p.CreateProc()) { return -1; }
-  if (!s.CreateProc()) { return -1; }
+  if (!m.TryStart()) { return -1; }
+  if (!a.TryStart()) {
+    m.Terminate();
+    return -1;
+  }
+  if (!p.TryStart()) {
+    m.Terminate();
+    a.Terminate();
+    return -1;
+  }
+  if (!s.TryStart()) {
+    m.Terminate();
+    a.Terminate();
+    p.Terminate();
+    return -1;
+  }
   return 0;
 }
