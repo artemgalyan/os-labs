@@ -3,17 +3,25 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <csignal>
 
-int system(const std::string& str) {
-  return system(str.c_str());
+void KillById(int pid, int signal = SIGTERM) {
+  kill(pid, signal);
 }
 
-void KillByName(const char* _name) {
-  system("killall " + std::string(_name));
-}
-
-void KillById(int pid) {
-  system("kill " + std::to_string(pid));
+void KillByName(const std::string& name) {
+  std::string command = "pidof " + name;
+  char buff[512];
+  strcpy(buff, command.c_str());
+  FILE* cmd = popen(command.c_str(), "r");
+  fgets(buff, sizeof(buff), cmd);
+  fclose(cmd);
+  std::string result = buff;
+  std::stringstream ss(result);
+  int pid;
+  while (ss >> pid) {
+    KillById(pid);
+  }
 }
 
 int main(int argc, char* args[]) {
@@ -36,10 +44,10 @@ int main(int argc, char* args[]) {
       }
     }
   }
-  char buff[100];
   if (getenv("PROC_TO_KILL") == nullptr)
     return 0;
 
+  char buff[100];
   strcpy(buff, getenv("PROC_TO_KILL"));
   std::stringstream ss(buff);
   while (ss.getline(buff, sizeof(buff), ',')) {
