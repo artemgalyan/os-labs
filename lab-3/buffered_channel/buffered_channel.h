@@ -3,72 +3,61 @@
 
 #include <utility>
 #include <mutex>
+#include <queue>
 #include <condition_variable>
 
-#include "queue_s.h"
-
-template<class T>
-    requires std::is_default_constructible_v<T> && std::is_move_assignable_v<T> && std::is_copy_constructible_v<T>
+template<class T> requires std::is_default_constructible_v<T> && std::is_move_assignable_v<T>
+    && std::is_copy_constructible_v<T>
 class BufferedChannel {
-  queue_s<T> queue_;
+  std::queue<T> queue_;
   const size_t max_size_;
 
-  std::condition_variable read_cv_;
-  std::condition_variable write_cv_;
+  std::condition_variable condition_variable_;
   std::mutex write_mutex_;
   std::mutex read_mutex_;
-  std::mutex working_mutex_;
-  bool can_write_{};
-  bool can_read_{};
   bool is_closed_ = false;
  public:
   constexpr const static bool REAL_ELEMENT = true;
   constexpr const static bool NOT_REAL_ELEMENT = false;
-  explicit BufferedChannel(size_t max_size) : max_size_(max_size) {
-    UpdateState();
-  }
+  explicit BufferedChannel(size_t max_size) : max_size_(max_size) {}
 
   void Send(T value) {
+    if (is_closed_) {
+      throw std::runtime_error("The channel is closed.");
+    }
     std::unique_lock<std::mutex> unique_lock(write_mutex_);
-    while (!can_write_) {
-      if (is_closed_) {
-        write_cv_.notify_all();
-        throw std::runtime_error("The channel is closed.");
-      }
-      write_cv_.wait(unique_lock);
+    condition_variable_.wait(unique_lock, [&]() {
+      return queue_.size() < max_size_ || is_closed_;
+    });
+    if (is_closed_) {
+      throw std::runtime_error("The channel is closed.");
+    }
+    if (is_closed_) {
+      condition_variable_.notify_one();
+      throw std::runtime_error("The channel is closed.");
     }
     queue_.push(std::move(value));
-    UpdateState();
-    write_cv_.notify_one();
-    read_cv_.notify_one();
+    condition_variable_.notify_one();
   }
 
   std::pair<T, bool> Receive() {
     std::unique_lock<std::mutex> unique_lock(read_mutex_);
-    while (!can_read_) {
-      if (is_closed_ && queue_.empty()) {
-        read_cv_.notify_all();
-        return {T(), NOT_REAL_ELEMENT};
-      }
-      read_cv_.wait(unique_lock);
+    condition_variable_.wait(unique_lock, [&]() {
+      return !queue_.empty() || is_closed_;
+    });
+    if (queue_.empty() && is_closed_) {
+      condition_variable_.notify_one();
+      return {T(), NOT_REAL_ELEMENT};
     }
     T value = queue_.front();
     queue_.pop();
-    UpdateState();
-    read_cv_.notify_one();
-    write_cv_.notify_one();
+    condition_variable_.notify_one();
     return {value, REAL_ELEMENT};
   }
 
   void Close() {
     is_closed_ = true;
-    read_cv_.notify_one();
-    write_cv_.notify_one();
-  }
- private:
-  void UpdateState() {
-    can_read_ = !queue_.empty();
-    can_write_ = queue_.size() <= max_size_;
+    condition_variable_.notify_one();
   }
 };
 

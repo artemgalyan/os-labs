@@ -3,4 +3,4 @@ project(buffered_channel)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(buffered_channel main.cpp buffered_channel.h queue_s.h)
+add_executable(buffered_channel main.cpp buffered_channel.h)
