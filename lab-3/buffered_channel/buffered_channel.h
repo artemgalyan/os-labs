@@ -15,6 +15,7 @@ class BufferedChannel {
   std::condition_variable condition_variable_;
   std::mutex write_mutex_;
   std::mutex read_mutex_;
+  std::mutex queue_mutex_;
   bool is_closed_ = false;
  public:
   constexpr const static bool REAL_ELEMENT = true;
@@ -36,6 +37,7 @@ class BufferedChannel {
       condition_variable_.notify_one();
       throw std::runtime_error("The channel is closed.");
     }
+    std::lock_guard<std::mutex> lock(queue_mutex_);
     queue_.push(std::move(value));
     condition_variable_.notify_one();
   }
@@ -49,6 +51,7 @@ class BufferedChannel {
       condition_variable_.notify_one();
       return {T(), NOT_REAL_ELEMENT};
     }
+    std::lock_guard<std::mutex> lock(queue_mutex_);
     T value = queue_.front();
     queue_.pop();
     condition_variable_.notify_one();
