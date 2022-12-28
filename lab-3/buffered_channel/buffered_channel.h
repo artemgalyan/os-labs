@@ -13,9 +13,7 @@ class BufferedChannel {
   const size_t max_size_;
 
   std::condition_variable condition_variable_;
-  std::mutex write_mutex_;
-  std::mutex read_mutex_;
-  std::mutex queue_mutex_;
+  std::mutex mutex_;
   bool is_closed_ = false;
  public:
   constexpr const static bool REAL_ELEMENT = true;
@@ -26,7 +24,7 @@ class BufferedChannel {
     if (is_closed_) {
       throw std::runtime_error("The channel is closed.");
     }
-    std::unique_lock<std::mutex> unique_lock(write_mutex_);
+    std::unique_lock<std::mutex> unique_lock(mutex_);
     condition_variable_.wait(unique_lock, [&]() {
       return queue_.size() < max_size_ || is_closed_;
     });
@@ -37,13 +35,12 @@ class BufferedChannel {
       condition_variable_.notify_one();
       throw std::runtime_error("The channel is closed.");
     }
-    std::lock_guard<std::mutex> lock(queue_mutex_);
     queue_.push(std::move(value));
     condition_variable_.notify_one();
   }
 
   std::pair<T, bool> Receive() {
-    std::unique_lock<std::mutex> unique_lock(read_mutex_);
+    std::unique_lock<std::mutex> unique_lock(mutex_);
     condition_variable_.wait(unique_lock, [&]() {
       return !queue_.empty() || is_closed_;
     });
@@ -51,7 +48,6 @@ class BufferedChannel {
       condition_variable_.notify_one();
       return {T(), NOT_REAL_ELEMENT};
     }
-    std::lock_guard<std::mutex> lock(queue_mutex_);
     T value = queue_.front();
     queue_.pop();
     condition_variable_.notify_one();
@@ -59,6 +55,7 @@ class BufferedChannel {
   }
 
   void Close() {
+    std::lock_guard<std::mutex> lock(mutex_);
     is_closed_ = true;
     condition_variable_.notify_one();
   }
